@@ -225,6 +225,19 @@ exports.getCurrentUserDetail = async (req, res) => {
 
 //Update User Details
 exports.updateUser = async (req, res) => {
+
+  const updateTasksOnEmailChange = async (oldEmail, newEmail, userId) => {
+    try {
+      // Update tasks assigned to old email to the new email
+      await Task.updateMany(
+        { assigned_to_email: oldEmail },
+        { $set: { assigned_to_email: newEmail, assigned_to: userId } }
+      );
+    } catch (error) {
+      console.error('Error updating tasks:', error);
+      throw new Error('Error updating tasks with new email');
+    }
+  };
   //Get Data
   const { name, email, oldPassword, newPassword } = req.body;
 
@@ -279,7 +292,12 @@ exports.updateUser = async (req, res) => {
       user.name = name;
     }
     if (email) {
+      const oldEmail = user.email;
       user.email = email;
+      // Update tasks if email is changed
+      if (oldEmail !== email) {
+        await updateTasksOnEmailChange(oldEmail, email, req.user.id);
+      }
     }
 
     // Save Updated User Details
