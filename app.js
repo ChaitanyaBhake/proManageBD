@@ -13,7 +13,7 @@ const connectDB = require('./config/configureDB');
 // CORS configuration
 const corsOptions = {
   credentials: true,
-  origin: 'http://localhost:5173',
+  origin: 'https://pro-manage-fd.vercel.app',
 };
 
 // Enable CORS with configured options
